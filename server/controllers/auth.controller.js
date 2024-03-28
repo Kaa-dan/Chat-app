@@ -2,10 +2,13 @@ import User from "../model/user.model.js";
 import bcryptjs from "bcryptjs";
 import errorHandler from "../utils/error.handler.js";
 import jwt from "jsonwebtoken";
+
+
 const signup = async (req, res, next) => {
+  console.log('nithin raj')
   const { username, email, password } = req.body;
 
-  //hashing password
+  // hashing password
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
   try {
