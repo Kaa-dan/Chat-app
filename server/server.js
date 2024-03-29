@@ -14,7 +14,7 @@ import path from "path";
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
-
+const __dirname = path.resolve();
 const io = new socketio(server, {
   cors: {
     origin: "*",
@@ -45,19 +45,17 @@ io.on("connection", (socket) => {
   console.log("socket connected");
   // socket.emit("message", "Welcome to Chat app");
   socket.on("sendMessage", async (message) => {
-    
     try {
       const responseMessage = ChatMessage({
         user: message.userId,
         message: message.message,
         groupId: message.groupId,
-       
       });
-      
+
       await responseMessage.save();
       io.emit("message", message);
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
     }
   });
 });
@@ -68,10 +66,10 @@ app.use("/api/auth", authRouter);
 server.listen(3000, () => {
   console.log("server is running");
 });
-// app.use(express.static(path.join(__dirname, "/client/dist")));
+app.use(express.static(path.join(__dirname, "/client/dist")));
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 app.use(error);
