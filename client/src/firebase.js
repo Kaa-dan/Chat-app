@@ -5,12 +5,12 @@ import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: "real-estate-31a9f.firebaseapp.com",
-  projectId: "real-estate-31a9f",
-  storageBucket: "real-estate-31a9f.appspot.com",
-  messagingSenderId: "709719649209",
-  appId: "1:709719649209:web:9d7a72db162fd2acc26468",
+  apiKey: "AIzaSyAdAWsbiUiHmFt1nUEmJeqIUMKa_qkHXn0",
+  authDomain: "chat-app-f9d36.firebaseapp.com",
+  projectId: "chat-app-f9d36",
+  storageBucket: "chat-app-f9d36.appspot.com",
+  messagingSenderId: "907339918624",
+  appId: "1:907339918624:web:8c513b0bd3aa317c02bb45"
 };
 
 // Initialize Firebase
