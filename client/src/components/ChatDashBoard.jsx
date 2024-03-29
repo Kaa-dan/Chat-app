@@ -2,18 +2,19 @@ import React, { useEffect, useState } from "react";
 import { CreateChatRoom } from "./CreateChatRoom";
 import { useSelector } from "react-redux";
 import { FiRefreshCcw } from "react-icons/fi";
+import { AiOutlinePlus } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@material-tailwind/react";
 
-export const ChatDashBoard = () => {
+export const ChatDashBoard = ({ refresh, setRefresh }) => {
   const [groupData, setGroupData] = useState([]);
   const { currentUser } = useSelector((state) => state.user);
-  let [refresh, setRefresh] = useState(false);
+  // let [refresh, setRefresh] = useState(false);
 
   const NAVIGATE = useNavigate();
 
   const getGroupDataHandler = async () => {
     try {
-      console.log(currentUser);
       let res = await fetch(`/api/user/groupdata/${currentUser._id}`);
       const data = await res.json();
       console.log(data);
@@ -72,7 +73,11 @@ export const ChatDashBoard = () => {
               ? "Create or join group to chat"
               : "Active Conversations"}
           </span>
-          <FiRefreshCcw />
+          <Button variant='filled' className="bg-red-700" onClick={()=>{
+            NAVIGATE('/search')
+          }}>
+            <AiOutlinePlus />
+          </Button>
           {/* <span className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">
             4
           </span> */}
@@ -83,7 +88,10 @@ export const ChatDashBoard = () => {
             <button
               key={group._id}
               className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2"
-              onClick={() => NAVIGATE(`/chat/${group._id}`)}
+              onClick={() => {
+                setRefresh((state) => !state);
+                NAVIGATE(`/chat/${group._id}`);
+              }}
             >
               <div className="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">
                 <img src={group.avatar} />

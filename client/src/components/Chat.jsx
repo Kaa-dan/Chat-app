@@ -1,29 +1,181 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-
+import { useSelector } from "react-redux";
 import socket from "../socket";
+import { avatar } from "@material-tailwind/react";
+import { v4 as uuidv4 } from "uuid";
 
-export const Chat = () => {
+const receivedMessageIds = new Set();
+export const Chat = ({ refresh, setRefresh }) => {
   const { id } = useParams();
+  // const [uniqueId, setUniqueId] = useState([]);
+  const scrollRef = useRef();
+  const containerRef = useRef();
 
-  socket.on("message", (message) => console.log(message));
+  const { currentUser } = useSelector((state) => state.user);
+
+  const [groupMessages, setGroupMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
+
+  const [message, setMessage] = useState("");
+
+  const handleMessageChange = (e) => {
+    try {
+      setMessage(e.target.value);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const submitHandler = async (e) => {
+    try {
+      e.preventDefault();
+      socket.emit("sendMessage", {
+        message,
+        userId: currentUser._id,
+        groupId: id,
+        avatar: currentUser.avatar,
+        id: uuidv4(),
+      });
+
+      setMessages((msg) => {
+        console.log(msg);
+        return [
+          ...msg,
+          {
+            message,
+            userId: currentUser._id,
+            groupId: id,
+            avatar: currentUser.avatar,
+          },
+        ];
+      });
+      setMessage("");
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const HandleSocketMessages = (msg) => {
+    // Keep track of received message IDs
+    console.log(msg);
+    // console.log(uniqueId);
+
+    // Check if the message ID is already in the set
+
+    if (!receivedMessageIds.has(msg.id)) {
+      // setUniqueId((state) => [...state, msg.id]);
+      receivedMessageIds.add(msg.id);
+      if (msg.groupId === id && msg.userId !== currentUser._id) {
+        setMessages((message) => [...message, msg]);
+      }
+    }
+  };
+
+  const getMessageHandler = async () => {
+    try {
+      const res = await fetch(`/api/user/getmessages/${id}`);
+      const data = await res.json();
+      setGroupMessages(data);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getMessageHandler();
+    setMessage("");
+    setMessages([]);
+  }, [refresh, id]);
+
+  // useEffect(() => {
+  //   socket.on("message", HandleSocketMessages);
+
+  //   return () => {
+  //     socket.off("message", HandleSocketMessages);
+  //   };
+  // }, []);
+
+  socket.on("message", HandleSocketMessages);
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+  useEffect(() => {
+    containerRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [groupMessages]);
   return (
     <div className="flex flex-col flex-auto h-full p-6">
       <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
-        <div className="flex flex-col h-full overflow-x-auto mb-4">
+        <div className="flex flex-col h-full overflow-x-auto mb-4 ">
           <div className="flex flex-col h-full">
             <div className="grid grid-cols-12 gap-y-2">
-              <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                <div className="flex flex-row items-center">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                    A
+              {groupMessages.map((value, index) => {
+                return value.user === currentUser._id ? (
+                  <div
+                    key={index}
+                    className="col-start-6 col-end-13 p-3 rounded-lg"
+                    ref={containerRef}
+                  >
+                    <div className="flex items-center justify-start flex-row-reverse">
+                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                        <img src={currentUser?.avatar} />
+                      </div>
+                      <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                        <div>{value?.message}</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                    <div>Hey How are you today?</div>
+                ) : (
+                  <div
+                    key={index}
+                    className="col-start-1 col-end-8 p-3 rounded-lg"
+                    ref={containerRef}
+                  >
+                    <div className="flex flex-row items-center">
+                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                        {value?.avatar}
+                      </div>
+                      <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                        <div>{value?.message}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="col-start-1 col-end-8 p-3 rounded-lg">
+                );
+              })}
+
+              {messages.map((value, index) => {
+                return value.userId === currentUser._id ? (
+                  <div
+                    key={index}
+                    className="col-start-6 col-end-13 p-3 rounded-lg"
+                    ref={scrollRef}
+                  >
+                    <div className="flex items-center justify-start flex-row-reverse">
+                      <div className="flex items-center justify-center h-10 w-10  bg-indigo-500  rounded-full flex-shrink-0">
+                        <img src={currentUser?.avatar} />
+                      </div>
+                      <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                        <div>{value?.message}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    key={index}
+                    className="col-start-1 col-end-8 p-3 rounded-lg"
+                    ref={scrollRef}
+                  >
+                    <div className="flex flex-row items-center">
+                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                        <img src={value?.avatar} />
+                      </div>
+                      <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                        <div>{value?.message}</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* <div className="col-start-1 col-end-8 p-3 rounded-lg">
                 <div className="flex flex-row items-center">
                   <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                     A
@@ -36,8 +188,9 @@ export const Chat = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-start-6 col-end-13 p-3 rounded-lg">
+              </div> */}
+
+              {/* <div className="col-start-6 col-end-13 p-3 rounded-lg">
                 <div className="flex items-center justify-start flex-row-reverse">
                   <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                     A
@@ -46,8 +199,9 @@ export const Chat = () => {
                     <div>I'm ok what about you?</div>
                   </div>
                 </div>
-              </div>
-              <div className="col-start-6 col-end-13 p-3 rounded-lg">
+              </div> */}
+
+              {/* <div className="col-start-6 col-end-13 p-3 rounded-lg">
                 <div className="flex items-center justify-start flex-row-reverse">
                   <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                     A
@@ -162,7 +316,7 @@ export const Chat = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -190,6 +344,8 @@ export const Chat = () => {
               <input
                 type="text"
                 className="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
+                onChange={handleMessageChange}
+                value={message}
               />
               <button className="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600">
                 <svg
@@ -210,7 +366,10 @@ export const Chat = () => {
             </div>
           </div>
           <div className="ml-4">
-            <button className="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0">
+            <button
+              onClick={submitHandler}
+              className="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0"
+            >
               <span>Send</span>
               <span className="ml-2">
                 <svg

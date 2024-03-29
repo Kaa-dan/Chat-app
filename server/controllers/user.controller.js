@@ -1,3 +1,4 @@
+import ChatMessage from "../model/chat.model.js";
 import GroupModel from "../model/group.model.js";
 
 const createGroup = async (req, res, next) => {
@@ -41,4 +42,60 @@ const getGroupData = async (req, res, next) => {
     next(error);
   }
 };
-export { createGroup, getGroupData };
+const getMessages = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+    if (id) {
+      let message = await ChatMessage.find({ groupId: id });
+      console.log(message);
+      res.status(200).json(message);
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+const search = async (req, res, next) => {
+  try {
+    console.log("nithin");
+    let { regi } = req.params;
+    const filter = await GroupModel.find({
+      groupName: { $regex: regi, $options: "i" },
+    });
+    res.status(200).json(filter);
+  } catch (error) {
+    // next(error);
+    console.log(error.message);
+  }
+};
+
+const allSearch = async (req, res, next) => {
+  try {
+    const filter = await GroupModel.find();
+    res.status(200).json(filter);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+const joinGroup = async (req, res, next) => {
+  try {
+    console.log(req.body)
+    const { groupId, userID } = req.body;
+    const group = await GroupModel.findById(groupId);
+
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    group.groupMembers.push(userID);
+
+    // Save the updated group document
+    const updatedGroup = await group.save();
+
+    res.status(200).json(updatedGroup);
+  } catch (error) {
+    next(error);
+  }
+};
+export { createGroup, getGroupData, getMessages, search, allSearch, joinGroup };
