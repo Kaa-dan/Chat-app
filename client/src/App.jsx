@@ -9,6 +9,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />}>
+          Switc
           <Route path="/chat/:id" element={<Chat />} />
           <Route path="/search" element={<Search />} />
         </Route>

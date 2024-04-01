@@ -8,8 +8,8 @@ import cookieParser from "cookie-parser";
 import { Server as socketio } from "socket.io";
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
-import ChatMessage from "./model/chat.model.js";
 import path from "path";
+import saveMessage from "./utils/socketMessage.js";
 
 dotenv.config();
 const app = express();
@@ -43,16 +43,11 @@ mongoose
 // run when a client connects
 io.on("connection", (socket) => {
   console.log("socket connected");
-  // socket.emit("message", "Welcome to Chat app");
+
   socket.on("sendMessage", async (message) => {
     try {
-      const responseMessage = ChatMessage({
-        user: message.userId,
-        message: message.message,
-        groupId: message.groupId,
-      });
-
-      await responseMessage.save();
+      console.log("nithin raj s");
+      saveMessage(message);
       io.emit("message", message);
     } catch (error) {
       console.log(error.message);

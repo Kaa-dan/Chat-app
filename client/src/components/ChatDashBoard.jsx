@@ -3,22 +3,26 @@ import { CreateChatRoom } from "./CreateChatRoom";
 import { useSelector } from "react-redux";
 import { FiRefreshCcw } from "react-icons/fi";
 import { AiOutlinePlus } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@material-tailwind/react";
+import { ref } from "firebase/storage";
+import Profile from "./Profile";
 
 export const ChatDashBoard = ({ refresh, setRefresh }) => {
   const [groupData, setGroupData] = useState([]);
   const { currentUser } = useSelector((state) => state.user);
   // let [refresh, setRefresh] = useState(false);
-
+  const location = useLocation();
   const NAVIGATE = useNavigate();
-
+  // console.log(location);
   const getGroupDataHandler = async () => {
     try {
-      let res = await fetch(`/api/user/groupdata/${currentUser._id}`);
-      const data = await res.json();
-      console.log(data);
-      setGroupData(data);
+      if (currentUser) {
+        let res = await fetch(`/api/user/groupdata/${currentUser?._id}`);
+        const data = await res.json();
+        // console.log(data);
+        setGroupData(data);
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -26,7 +30,7 @@ export const ChatDashBoard = ({ refresh, setRefresh }) => {
 
   useEffect(() => {
     getGroupDataHandler();
-  }, [refresh]);
+  }, [refresh, location]);
 
   return (
     <div className="flex flex-col py-8 pl-6 pr-2 w-64 bg-white flex-shrink-0">
@@ -47,35 +51,28 @@ export const ChatDashBoard = ({ refresh, setRefresh }) => {
             ></path>
           </svg>
         </div>
-        <div className="ml-2 font-bold text-2xl">QuickChat</div>
+        <div className="ml-2 font-bold text-2xl">ChatGram</div>
       </div>
-      <div className="flex flex-col items-center bg-indigo-100 border border-gray-200 mt-4 w-full py-6 px-4 rounded-lg">
-        <div className="h-20 w-20 rounded-full border overflow-hidden">
-          <img
-            src="https://avatars3.githubusercontent.com/u/2763884?s=128"
-            alt="Avatar"
-            className="h-full w-full"
-          />
-        </div>
-        <div className="text-sm font-semibold mt-2">Aminos Co.</div>
-        <div className="text-xs text-gray-500">Lead UI/UX Designer</div>
-        <div className="flex flex-row items-center mt-3">
-          <div className="flex flex-col justify-center h-4 w-8 bg-indigo-500 rounded-full">
-            <div className="h-3 w-3 bg-white rounded-full self-end mr-1"></div>
-          </div>
-          <div className="leading-none ml-1 text-xs">Active</div>
-        </div>
-      </div>
+      <Profile />
       <div className="flex flex-col mt-8">
         <div className="flex flex-row items-center justify-between text-xs">
-          <span className="font-bold text-red-800">
+          <span
+            onClick={() => {
+              NAVIGATE("/search");
+            }}
+            className="font-bold text-red-800"
+          >
             {groupData.length === 0
-              ? "Create or join group to chat"
-              : "Active Conversations"}
+              ? "Join group to chat"
+              : "Join group to chat"}
           </span>
-          <Button variant='filled' className="bg-red-700" onClick={()=>{
-            NAVIGATE('/search')
-          }}>
+          <Button
+            variant="filled"
+            className="bg-red-700"
+            onClick={() => {
+              NAVIGATE("/search");
+            }}
+          >
             <AiOutlinePlus />
           </Button>
           {/* <span className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">
@@ -87,7 +84,11 @@ export const ChatDashBoard = ({ refresh, setRefresh }) => {
           {groupData.map((group) => (
             <button
               key={group._id}
-              className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2"
+              className={`flex flex-row items-center hover:bg-gray-100 rounded-xl p-2 ${
+                location.pathname === `/chat/${group._id}`
+                  ? "bg-indigo-200"
+                  : ""
+              }`}
               onClick={() => {
                 setRefresh((state) => !state);
                 NAVIGATE(`/chat/${group._id}`);

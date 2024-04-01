@@ -21,7 +21,7 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      console.log(formData)
+      console.log(formData);
       setLoading(true);
       const res = await fetch("/api/auth/signup", {
         method: "POST",
@@ -48,8 +48,11 @@ const SignUp = () => {
   };
 
   return (
-    <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl text-center font-semibold my-7">Sigh Up</h1>
+    <div className="p-3 max-w-lg mx-auto mt-20">
+      <h1 className="text-3xl text-center font-semibold my-7  text-lime-700">
+        Sigh Up
+      </h1>
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           onChange={handleChange}

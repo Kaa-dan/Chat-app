@@ -50,7 +50,7 @@ const SignIn = () => {
   return (
     <div className="p-3 max-w-lg mx-auto mt-20">
       <h1 className="text-3xl text-center my-7">
-        <span className="font-bold  text-lime-700">Sigh</span>{" "}
+        <span className="font-bold  text-lime-700">Sign</span>{" "}
         <span className="text-lime-500 font-bold ">In </span>{" "}
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">

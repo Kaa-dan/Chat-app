@@ -8,8 +8,8 @@ export default function ListingItem({ listing }) {
   const NAVIGATE = useNavigate();
   let handleJoin = async () => {
     try {
-      console.log(listing);
-      console.log(currentUser);
+      // console.log(listing);
+      // console.log(currentUser);
       const res = await fetch(`/api/user/joingroup`, {
         method: "POST",
         headers: {

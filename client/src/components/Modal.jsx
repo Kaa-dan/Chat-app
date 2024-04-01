@@ -119,14 +119,14 @@ export default function DialogWithForm({
                 ""
               )}
             </p>
-            <Button
-              variant="filled"
+            <button
+             
               className="text-red-700"
-              fullWidth
+              // fullWidth
               onClick={() => fileRef.current.click()}
             >
               Upload image
-            </Button>
+            </button>
           </CardBody>
           <CardFooter className="pt-0">
             {/* <Button
@@ -137,14 +137,9 @@ export default function DialogWithForm({
             >
               Close
             </Button> */}
-            <Button
-              variant="filled"
-              className="text-red-700"
-              fullWidth
-              onClick={handleSubmit}
-            >
+            <button className="text-white bg-red-600 rounded-xl w-40 ml-20" onClick={handleSubmit}>
               Create Group
-            </Button>
+            </button>
           </CardFooter>
         </Card>
       </Dialog>

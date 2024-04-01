@@ -1,5 +1,6 @@
 import ChatMessage from "../model/chat.model.js";
 import GroupModel from "../model/group.model.js";
+import User from "../model/user.model.js";
 
 const createGroup = async (req, res, next) => {
   try {
@@ -24,7 +25,6 @@ const createGroup = async (req, res, next) => {
     }
   } catch (error) {
     next(error);
-    // console.log(error.message);
   }
 };
 
@@ -42,19 +42,27 @@ const getGroupData = async (req, res, next) => {
     next(error);
   }
 };
+
+
+
+
+
 const getMessages = async (req, res, next) => {
   try {
     const { id } = req.params;
     console.log(id);
     if (id) {
-      let message = await ChatMessage.find({ groupId: id });
-      console.log(message);
+      let message = await ChatMessage.find({ groupId: id }).populate('user');;
+      // console.log(message);
       res.status(200).json(message);
+
     }
   } catch (error) {
     console.log(error.message);
   }
 };
+
+
 
 const search = async (req, res, next) => {
   try {
@@ -70,6 +78,10 @@ const search = async (req, res, next) => {
   }
 };
 
+
+
+
+
 const allSearch = async (req, res, next) => {
   try {
     const filter = await GroupModel.find();
@@ -78,9 +90,13 @@ const allSearch = async (req, res, next) => {
     console.log(error.message);
   }
 };
+
+
+
+
 const joinGroup = async (req, res, next) => {
   try {
-    console.log(req.body)
+    console.log(req.body);
     const { groupId, userID } = req.body;
     const group = await GroupModel.findById(groupId);
 
@@ -98,4 +114,53 @@ const joinGroup = async (req, res, next) => {
     next(error);
   }
 };
-export { createGroup, getGroupData, getMessages, search, allSearch, joinGroup };
+
+
+
+
+const updatProfile = async (req, res, next) => {
+  try {
+    const { id, link, username } = req.body;
+    if (!link) {
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            userName: username,
+          },
+        },
+        { new: true }
+      );
+
+      res.status(200).json(updatedUser);
+    } else {
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            userName: username,
+            avatar: link,
+          },
+        },
+        { new: true }
+      );
+
+      res.status(200).json(updatedUser);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+
+export {
+  createGroup,
+  getGroupData,
+  getMessages,
+  search,
+  allSearch,
+  joinGroup,
+  updatProfile,
+};

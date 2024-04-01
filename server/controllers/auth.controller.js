@@ -3,9 +3,8 @@ import bcryptjs from "bcryptjs";
 import errorHandler from "../utils/error.handler.js";
 import jwt from "jsonwebtoken";
 
-
 const signup = async (req, res, next) => {
-  console.log('nithin raj')
+  console.log("nithin raj");
   const { username, email, password } = req.body;
 
   // hashing password
@@ -29,7 +28,13 @@ const signup = async (req, res, next) => {
 const signin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const validUser = await User.findOne({ email });
+    // const validUser = await User.findOne({ email });
+    const validUser = await User.findOneAndUpdate(
+      { email }, // Filter for finding the user
+      { $set: { online: true } }, // Update to set the online field to true
+      { new: true } // Return the updated document
+    );
+
     if (!validUser) return next(errorHandler(404, "User not found"));
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     if (!validPassword) return next(errorHandler(404, "wrong credentials"));
@@ -46,9 +51,15 @@ const signin = async (req, res, next) => {
   }
 };
 
-const google = async (req, res,next) => {
+const google = async (req, res, next) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    // const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOneAndUpdate(
+      { email: req.body.email }, // Filter for finding the user
+      { $set: { online: true } }, // Update to set the online field to true
+      { new: true } // Return the updated document
+    );
+
     if (user) {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
@@ -86,13 +97,20 @@ const google = async (req, res,next) => {
   }
 };
 
- const signOut = async (req, res, next) => {
+const signOut = async (req, res, next) => {
   try {
-    res.clearCookie('access_token');
-    res.status(200).json('User has been logged out!');
+    const { email } = req.params;
+
+    const user = await User.findOneAndUpdate(
+      { email }, // Filter for finding the user
+      { $set: { online: false } }, // Update to set the online field to true
+      { new: true } // Return the updated document
+    );
+    res.clearCookie("access_token");
+    res.status(200).json("User has been logged out!");
   } catch (error) {
     next(error);
   }
 };
 
-export { signup, signin, google,signOut };
+export { signup, signin, google, signOut };
