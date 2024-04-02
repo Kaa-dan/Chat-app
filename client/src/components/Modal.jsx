@@ -32,7 +32,7 @@ export default function DialogWithForm({
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
-
+  const [uploaidng, setUploading] = useState(false);
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
@@ -44,7 +44,7 @@ export default function DialogWithForm({
     const fileName = new Date().getTime() + file.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
-
+    setUploading(true);
     uploadTask.on(
       "state_changed",
       (snapshot) => {
@@ -61,6 +61,7 @@ export default function DialogWithForm({
         );
       }
     );
+    setUploading(false);
   };
 
   const handleChange = (e) => {
@@ -120,7 +121,6 @@ export default function DialogWithForm({
               )}
             </p>
             <button
-             
               className="text-red-700"
               // fullWidth
               onClick={() => fileRef.current.click()}
@@ -137,9 +137,14 @@ export default function DialogWithForm({
             >
               Close
             </Button> */}
-            <button className="text-white bg-red-600 rounded-xl w-40 ml-20" onClick={handleSubmit}>
-              Create Group
-            </button>
+            {uploaidng ? null : (
+              <button
+                className="text-white bg-red-600 rounded-xl w-40 ml-20"
+                onClick={handleSubmit}
+              >
+                Create Group
+              </button>
+            )}
           </CardFooter>
         </Card>
       </Dialog>

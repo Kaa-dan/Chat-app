@@ -45,7 +45,7 @@ export default function ListingItem({ listing }) {
             className="flex items-center gap-1"
           >
             <AiOutlineUserAdd className="h-4 w-4 text-green-700" />
-            <p className="text-sm text-gray-600 truncate w-full">
+            <p className="text-sm text-gray-600 truncate w-full cursor-pointer">
               {"Join Group"}
             </p>
           </div>

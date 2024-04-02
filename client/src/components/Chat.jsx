@@ -161,7 +161,7 @@ export const Chat = ({ refresh }) => {
                       </div>
                       <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
                         <div>{value?.message}</div>
-                        {value.online ? (
+                        {value?.online ? (
                           <div className="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-green-500">
                             {value?.username}
                           </div>

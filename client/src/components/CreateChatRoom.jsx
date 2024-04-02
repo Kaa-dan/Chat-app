@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { CgAdd } from "react-icons/cg";
 import Modal from "./Modal";
 import { MdExitToApp } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteUserFailure, deleteUserSuccess } from "../redux/user/userSlice";
 export const CreateChatRoom = ({ refresh, setRefresh }) => {
+
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen((cur) => !cur);
   const dispatch = useDispatch();
