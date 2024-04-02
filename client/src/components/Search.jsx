@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ListingItem from "./ListingItem";
-
+import {useSelector} from 'react-redux'
 export const Search = () => {
   let [search, setSearch] = useState("");
   let [listings, setListings] = useState([]);
- 
+ const {currentUser}= useSelector((state)=>state.user)
   let handleChange = (e) => {
     try {
       setSearch(() => e.target.value);
@@ -32,7 +32,9 @@ export const Search = () => {
     }
   };
 
-
+  useEffect(() => {
+    if (!currentUser) navigate("/sign-in");
+  }, [currentUser]);
   useEffect(() => {
     handleGetData();
   }, []);

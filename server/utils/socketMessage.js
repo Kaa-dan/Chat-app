@@ -1,7 +1,7 @@
 import ChatMessage from "../model/chat.model.js";
 
 const saveMessage = async (message) => {
-//   console.log(message);
+  //   console.log(message);
   try {
     const responseMessage = ChatMessage({
       user: message.userId,
@@ -11,7 +11,7 @@ const saveMessage = async (message) => {
 
     await responseMessage.save();
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
   }
 };
 

@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import socket from "../socket";
-import { avatar } from "@material-tailwind/react";
 
 export const Chat = ({ refresh }) => {
   const { id } = useParams();
@@ -11,35 +10,16 @@ export const Chat = ({ refresh }) => {
   const containerRef = useRef();
 
   const { currentUser } = useSelector((state) => state.user);
-  // console.log(currentUser);
+
   const [groupMessages, setGroupMessages] = useState([]);
   const [messages, setMessages] = useState([]);
-
+  console.log(messages);
   const [message, setMessage] = useState("");
   const handleMessageChange = (e) => {
     try {
       setMessage(e.target.value);
     } catch (error) {
       console.log(error);
-    }
-  };
-
-  const submitHandler = async (e) => {
-    try {
-      if (message) {
-        e.preventDefault();
-        socket.emit("sendMessage", {
-          message,
-          userId: currentUser._id,
-          groupId: id,
-          avatar: currentUser.avatar,
-          online: currentUser.online,
-          username: currentUser.userName,
-        });
-      }
-      setMessage("");
-    } catch (error) {
-      console.log(error.message);
     }
   };
 
@@ -51,21 +31,48 @@ export const Chat = ({ refresh }) => {
     } catch (error) {}
   };
 
-  useEffect(() => {
-    socket.on("message", (msg) => {
-      console.log(msg);
-      if (msg.groupId === id) {
-        setMessages((msgs) => [...msgs, msg]);
-      } else {
-        console.log("msg is not same");
+  const submitHandler = async (e) => {
+    try {
+      if (message.trim() !== "") {
+        // Check if message is not empty
+        e.preventDefault();
+        socket.emit("sendMessage", {
+          message,
+          userId: currentUser._id,
+          groupId: id,
+          avatar: currentUser.avatar,
+          online: currentUser.online,
+          username: currentUser.userName,
+        });
+        setMessage("");
       }
-      // if (msg.groupId === id) {
-      // }
-    });
-  }, []);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   useEffect(() => {
     getMessageHandler();
+    setMessages([]);
+  }, [id]);
+  useEffect(() => {
+    // Subscribe to messages for the current group
+    socket.emit("subscribeToGroupMessages", { groupId: id });
+
+    // Event listener for receiving messages
+    socket.on("groupMessage", (msg) => {
+      if (msg.groupId === id) {
+        setMessages((prevMessages) => [...prevMessages, msg]);
+      } else {
+        // setMessages([])
+      }
+    });
+
+    // Cleanup function to unsubscribe when component unmounts
+    return () => {
+      socket.emit("unsubscribeFromGroupMessages", { groupId: id });
+      socket.off("groupMessage");
+    };
   }, [id]);
 
   useEffect(() => {
@@ -172,24 +179,7 @@ export const Chat = ({ refresh }) => {
           </div>
         </div>
         <div className="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
-          <div>
-            {/* <button className="flex items-center justify-center text-gray-400 hover:text-gray-600">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                ></path>
-              </svg>
-            </button> */}
-          </div>
+          <div></div>
           <div className="flex-grow ml-4">
             <div className="relative w-full">
               <input
@@ -198,22 +188,6 @@ export const Chat = ({ refresh }) => {
                 onChange={handleMessageChange}
                 value={message}
               />
-              {/* <button className="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-              </button> */}
             </div>
           </div>
           <div className="ml-4">
